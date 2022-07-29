@@ -18,12 +18,12 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-        return res.status(401).send({ message: 'unauthorized access' });
+        return res.status(401).send({ message: 'Unauthorized Access' });
     }
     const token = authHeader.split(' ')[1];
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
         if (err) {
-            return res.status(403).send({ message: 'forbidden access' })
+            return res.status(403).send({ message: 'Forbidden Access' })
         }
         req.decoded = decoded;
         next();
@@ -38,6 +38,7 @@ async function run() {
         const orderCollection = client.db('yourTools').collection('order');
         const userCollection = client.db('yourTools').collection('user');
 
+        // GET........Get Tool
         app.get('/tool', async (req, res) => {
             const query = {};
             const cursor = toolCollection.find(query);
@@ -45,9 +46,34 @@ async function run() {
             res.send(tools);
         });
 
+        // POST.....Add Tool
+        app.post('/tool', async (req, res) => {
+            const newProduct = req.body;
+            const result = await toolCollection.insertOne(newProduct);
+            res.send(result);
+        });
+
         app.get('/user', async (req, res) => {
             const users = await userCollection.find().toArray();
             res.send(users);
+        });
+
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin })
+        })
+
+        app.put('/user/admin/:email', async (req, res) => {
+            const email = req.params.email;
+
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
         });
 
         app.put('/user/:email', async (req, res) => {
