@@ -3,6 +3,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -37,6 +38,23 @@ async function run() {
         const toolCollection = client.db('yourTools').collection('tool');
         const orderCollection = client.db('yourTools').collection('order');
         const userCollection = client.db('yourTools').collection('user');
+        const reviewCollection = client.db('yourTools').collection('review');
+
+
+        // app.post('/create-payment-intent', async (req, res) => {
+        //     const order = req.body;
+        //     const price = order.price;
+        //     const amount = price * 100;
+        //     const paymentIntent = await stripe.paymentIntents.create({
+        //         amount: amount,
+        //         currency: 'usd',
+        //         payment_method_types: ['card']
+        //     });
+        //     res.send({ clientSecret: paymentIntent.client_secret })
+        // });
+
+
+        // ...........Tool...............
 
         // GET........Get Tool
         app.get('/tool', async (req, res) => {
@@ -51,6 +69,14 @@ async function run() {
             const newProduct = req.body;
             const result = await toolCollection.insertOne(newProduct);
             res.send(result);
+        });
+
+        // GET........Get Tool:id
+        app.get('/tool/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const tool = await toolCollection.findOne(query);
+            res.send(tool);
         });
 
         app.get('/user', async (req, res) => {
@@ -89,12 +115,7 @@ async function run() {
             res.send({ result, token });
         });
 
-        app.get('/tool/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const tool = await toolCollection.findOne(query);
-            res.send(tool);
-        });
+
 
         app.get('/order/:id', async (req, res) => {
             const id = req.params.id;
@@ -142,6 +163,16 @@ async function run() {
             const result = await orderCollection.insertOne(order);
             res.send({ success: true, result });
         })
+
+
+        // .............REVIEW..........
+
+        // POST..........Review
+        app.post('/review', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            res.send(result);
+        });
 
 
     }
