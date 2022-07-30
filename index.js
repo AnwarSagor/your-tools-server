@@ -165,7 +165,7 @@ async function run() {
         })
 
 
-        // .............REVIEW..........
+        // ...................................................REVIEW
 
         // POST..........Review
         app.post('/review', async (req, res) => {
@@ -173,6 +173,13 @@ async function run() {
             const result = await reviewCollection.insertOne(review);
             res.send(result);
         });
+
+        // GET...........Review
+        app.get('/reviews', async (req, res) => {
+            const reviews = await reviewCollection.find().toArray();
+            res.send(reviews);
+        });
+
 
 
     }
