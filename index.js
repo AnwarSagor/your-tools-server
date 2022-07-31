@@ -207,6 +207,10 @@ app.get('/', (req, res) => {
     res.send('Hello Tools!')
 })
 
+app.get('/assignment', (req, res) => {
+    res.send('This is assignment 12')
+})
+
 app.listen(port, () => {
     console.log(`Tools port ${port}`)
 })
