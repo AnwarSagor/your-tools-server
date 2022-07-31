@@ -54,9 +54,17 @@ async function run() {
         // });
 
 
-        // ...........Tool...............
 
-        // GET........Get Tool
+        //...................................................TOOL
+
+        // POST......... Tool
+        app.post('/tool', async (req, res) => {
+            const newProduct = req.body;
+            const result = await toolCollection.insertOne(newProduct);
+            res.send(result);
+        });
+
+        // GET...........Tool
         app.get('/tool', async (req, res) => {
             const query = {};
             const cursor = toolCollection.find(query);
@@ -64,14 +72,7 @@ async function run() {
             res.send(tools);
         });
 
-        // POST.....Add Tool
-        app.post('/tool', async (req, res) => {
-            const newProduct = req.body;
-            const result = await toolCollection.insertOne(newProduct);
-            res.send(result);
-        });
-
-        // GET........Get Tool:id
+        // GET...........Tool:id
         app.get('/tool/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -79,29 +80,10 @@ async function run() {
             res.send(tool);
         });
 
-        app.get('/user', async (req, res) => {
-            const users = await userCollection.find().toArray();
-            res.send(users);
-        });
 
-        app.get('/admin/:email', async (req, res) => {
-            const email = req.params.email;
-            const user = await userCollection.findOne({ email: email });
-            const isAdmin = user.role === 'admin';
-            res.send({ admin: isAdmin })
-        })
+        // ............................................ ...USER 
 
-        app.put('/user/admin/:email', async (req, res) => {
-            const email = req.params.email;
-
-            const filter = { email: email };
-            const updateDoc = {
-                $set: { role: 'admin' },
-            };
-            const result = await userCollection.updateOne(filter, updateDoc);
-            res.send(result);
-        });
-
+        //PUT................User
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
@@ -115,14 +97,69 @@ async function run() {
             res.send({ result, token });
         });
 
+        //GET................User
+        app.get('/user', async (req, res) => {
+            const users = await userCollection.find().toArray();
+            res.send(users);
+        });
 
 
+        // ................................................... ADMIN
+
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin })
+        })
+
+        // .............................................USER && ADMIN
+
+        app.put('/user/admin/:email', async (req, res) => {
+            const email = req.params.email;
+
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
+
+        // .................................................ORDER
+
+        //POST.................... Order
+        app.post('/order', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send({ success: true, result });
+        })
+
+        //GET.................... Order
+        app.get('/order', async (req, res) => {
+            const email = req.query.email
+            const query = { email: email };
+            const order = await orderCollection.find(query).toArray();
+            res.send(order);
+
+        });
+
+        //GET.................... Order/id
         app.get('/order/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const order = await orderCollection.findOne(query);
             res.send(order);
         })
+
+        // DELETE
+        app.delete('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(query);
+            res.send(result);
+        });
 
         // app.get('/order', verifyJWT, async (req, res) => {
         //     const email = req.query.email
@@ -137,32 +174,7 @@ async function run() {
         //     }
         // });
 
-        app.get('/order', async (req, res) => {
-            const email = req.query.email
-            const query = { email: email };
-            const order = await orderCollection.find(query).toArray();
-            res.send(order);
 
-        });
-
-        // app.get('/order', verifyJWT, async (req, res) => {
-        //     const email = req.query.email
-        //     const decodedEmail = req.decoded.email;
-        //     if (email === decodedEmail) {
-        //         const query = { email: email };
-        //         const order = await orderCollection.find(query).toArray();
-        //         res.send(order);
-        //     }
-        //     else {
-        //         return res.status(403).send({ message: 'Forbidden access' })
-        //     }
-        // });
-
-        app.post('/order', async (req, res) => {
-            const order = req.body;
-            const result = await orderCollection.insertOne(order);
-            res.send({ success: true, result });
-        })
 
 
         // ...................................................REVIEW
