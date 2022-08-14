@@ -80,6 +80,15 @@ async function run() {
             res.send(tool);
         });
 
+        // DELETE...........Tool:id
+        app.delete('/tool/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await toolCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
 
         // ............................................ ...USER 
 
@@ -101,6 +110,14 @@ async function run() {
         app.get('/user', async (req, res) => {
             const users = await userCollection.find().toArray();
             res.send(users);
+        });
+
+        //DELETE................User
+        app.delete('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const result = await userCollection.deleteOne(filter);
+            res.send(result);
         });
 
 
